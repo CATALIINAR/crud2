@@ -6,24 +6,30 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.UUID;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrePersist;
+ 
 @Data
 @Getter
 @Setter
 @NoArgsConstructor
+@Entity
 
 public class EmpleadosEntity {
+
+    @Id
     private UUID id;
-    private String nombre;
-    private String apellido
-    private int edad;
-    private  String cargo;
+    private String empleadosnombre;
+    private String empleadosapellido;
+    private int empleadosedad;
+    private  String empleadoscargo;
 
-    public EmpleadosEntity(UUID id, String nombre, String apellido, int edad, String cargo) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.edad = edad;
-        this.cargo = cargo;
+    @PrePersist
+	public void generateUUID() {
+		if (id == null) {
+			id = UUID.randomUUID();
+		}
+	}
 
-    }
+    
 }

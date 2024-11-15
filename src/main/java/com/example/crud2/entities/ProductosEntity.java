@@ -13,8 +13,8 @@ import java.util.UUID;
 
 public class ProductosEntity {
     private UUID id;
-    private String nombre;
-    private String categoria
+    private String productosnombre;
+    private String categoria;
     private double precio;
     private  int cantidad;
 
