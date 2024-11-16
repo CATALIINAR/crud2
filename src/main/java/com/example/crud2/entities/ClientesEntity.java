@@ -20,9 +20,9 @@ public class ClientesEntity {
 
     @Id
     private UUID id;
-    private String nombre;
-    private String apellido
-    private int edad;
+    private String clientesnombre;
+    private String clientesapellido
+    private int clientesedad;
 
     @PrePersist
 	public void generateUUID() {
@@ -32,4 +32,3 @@ public class ClientesEntity {
 	}
 
 }
-
