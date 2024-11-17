@@ -1,62 +1,83 @@
 package com.example.crud2.services;
 
-import com.example.crud2.entities.ClientesEntity;
+import java.util.*;
 import com.example.crud2.entities.ProductosEntity;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import com.example.crud2.repositories.ProductosRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 @Service
 
 public class ProductosServices {
-    private List<ProductosEntity> productos;
+    
+    @Autowired
+    private ProductosRepository productosRepository;
 
-    public ProductosServices() {
-        productos = new ArrayList<>();
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Pestañina", "facial", 10.500,15));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Pestañina", "facial", 10_500, 15));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Labial", "labios", 8_200, 20));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Base líquida", "facial", 25_000, 10));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Rubor", "facial", 12_000, 18));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Delineador", "ojos", 9_500, 25));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Corrector", "facial", 15_300, 12));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Sombras", "ojos", 30_000, 8));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Iluminador", "facial", 20_000, 10));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Polvo compacto", "facial", 18_500, 14));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Brillo labial", "labios", 7_800, 30));
-        productos.add(new ProductosEntity(UUID.randomUUID(), "Spray fijador", "facial", 22_000, 9));
-
-
-    }
-    public List<ProductosEntity> getAllProductos() {
-        return productos;
+    public ResponseEntity<Map<String, Object>> getAllProductos() {
+        Map<String, Object> response = new HashMap<>();
+        List<ProductosEntity> productos = productosRepository.findAll();
+        response.put("Productos", productos);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public Optional<ProductosEntity> getProductosById(UUID id) {
-        return productos.stream().filter(productos -> productos.getId().equals(id)).findFirst();
-    }
-
-    public ProductosEntity createProductos(ProductosEntity productos) {
-        productos.setId(UUID.randomUUID());
-        productos.add(productos);
-        return productos;
-    }
-    public Optional<ProductosEntity> updateProductos(UUID id, ProductosEntity updatedproductos) {
-        for (int i = 0; i < productos.size(); i++) {
-            ProductosEntity productos = productos.get(i);
-            if (productos.getId().equals(id)) {
-                updatedproductos.setId(id);
-                productos.set(i, updatedproductos);
-                return Optional.of(updatedproductos);
-            }
+    public ResponseEntity<Map<String, Object>> getProductosById(UUID id) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<ProductosEntity> productosFound = productosRepository.findById(id);
+        if (productosFound.isPresent()) {
+            response.put("Productos", productosFound.get());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.put("Error", "Producto no encontrado");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-        return Optional.empty();
     }
 
-    public boolean deleteProductos(UUID id) {
-        return productos.removeIf(productos -> productos.getId().equals(id));
+    public ResponseEntity<Map<String, Object>> createProductos(ProductosEntity productos) {
+        Map<String, Object> response = new HashMap<>();
+        productos.setId(UUID.randomUUID());
+        if (productosRepository.existsById(productos.getId())) {
+            response.put("Estado", "El producto ya existe");
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        } else {
+            ProductosEntity newProductos = productosRepository.save(productos);
+            response.put("Estado", "Producto insertado correctamente");
+            response.put("Productos", newProductos);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> updateProductos(UUID id, ProductosEntity productos) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<ProductosEntity> productosFound = productosRepository.findById(id);
+        if (productosFound.isPresent()) {
+            ProductosEntity existingProductos = productosFound.get();
+            existingProductos.setProductosnombre(productos.getProductosnombre());
+            existingProductos.setProductoscategoria(productos.getProductoscategoria());
+            existingProductos.setProductoscantidad(productos.getProductoscantidad());
+            existingProductos.setProductosprecio(productos.getProductosprecio());
+            productosRepository.save(existingProductos);
+            response.put("Estado", "Producto actualizado correctamente");
+            response.put("Producto Actualizado", existingProductos);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.put("Estado", "Producto no encontrado");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> deleteProductos(UUID id) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<ProductosEntity> productosFound = productosRepository.findById(id);
+        if (productosFound.isPresent()) {
+            productosRepository.deleteById(id);
+            response.put("Estado", "Producto eliminado correctamente");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.put("Estado", "Producto no encontrado");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
     }
 
 }

@@ -1,27 +1,35 @@
 package com.example.crud2.entities;
 
+import java.util.UUID;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.UUID;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
+@Entity
 
 public class SucursalesEntity {
+
+    @Id
     private UUID id;
-    private String nombre;
-    private String ciudad;
-    private String direccion;
+    private String sucursalesnombre;
+    private String sucursalesciudad;
+    private String sucursalesdireccion;
 
-    public SucursalesEntity(UUID id, String nombre, String ciudad, String direccion) {
-        this.id = id;
-        this.nombre = nombre;
-        this.ciudad = ciudad;
-        this.direccion = direccion;
-
-    }
+    @PrePersist
+	public void generateUUID() {
+		if (id == null) {
+			id = UUID.randomUUID();
+		}
+	} 
 }

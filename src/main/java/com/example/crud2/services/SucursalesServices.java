@@ -1,62 +1,84 @@
 package com.example.crud2.services;
 
+import java.util.*;
 import com.example.crud2.entities.SucursalesEntity;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.example.crud2.repositories.SucursaleaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 @Service
 
 
 public class SucursalesServices {
-    private List<SucursalesEntity> sucursales;
 
-    public SucursalesServices() {
-        sucursales = new ArrayList<>();
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Bella Rosa", "Bogota", "Calle 26 N 67-32"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Bella Rosa", "Bogotá", "Calle 26 N 67-32"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Glamour Center", "Medellín", "Carrera 45 N 32-18"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Elegancia Total", "Cali", "Avenida 4 N 23-45"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Brillo y Belleza", "Barranquilla", "Calle 72 N 48-60"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Estilo Urbano", "Cartagena", "Calle del Arsenal N 10-40"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Centro Belleza", "Bucaramanga", "Carrera 27 N 52-20"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Look Perfecto", "Manizales", "Carrera 23 N 10-55"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Chic Belleza", "Pereira", "Avenida Circunvalar N 18-45"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Rosa Glam", "Santa Marta", "Carrera 5 N 24-30"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Divina Mujer", "Ibagué", "Calle 10 N 30-25"));
-        sucursales.add(new SucursalesEntity(UUID.randomUUID(), "Fascinante", "Cúcuta", "Avenida Libertadores N 12-58"));
+    @Autowired
+    private SucursaleaRepository sucursalesRepository;
 
-    }
-    public List<SucursalesEntity> getAllSucursales() {
-        return sucursales;
+    public ResponseEntity<Map<String, Object>> getAllSucursales() {
+        Map<String, Object> response = new HashMap<>();
+        List<SucursalesEntity> sucursales = sucursalesRepository.findAll();
+        response.put("Sucursales", sucursales);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public Optional<SucursalesEntity> getSucursalesById(UUID id) {
-        return sucursales.stream().filter(sucursales -> sucursales.getId().equals(id)).findFirst();
-    }
-
-    public SucursalesEntity createSucursales(SucursalesEntity sucursales) {
-        sucursales.setId(UUID.randomUUID());
-        sucursales.add(sucursales);
-        return sucursales;
-    }
-
-    public Optional<SucursalesEntity> updateSucursales(UUID id, SucursalesEntity updatedsucursales) {
-        for (int i = 0; i < sucursales.size(); i++) {
-            SucursalesEntity sucursales = sucursales.get(i);
-            if (sucursales.getId().equals(id)) {
-                updateSucursales.setId(id);
-                sucursales.set(i, updatedsucursales);
-                return Optional.of(updateSucursales);
-            }
+    public ResponseEntity<Map<String, Object>> getSucursalesById(UUID id) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<SucursalesEntity> sucursalesFound = sucursalesRepository.findById(id);
+        if (sucursalesFound.isPresent()) {
+            response.put("Sucursales", sucursalesFound.get());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.put("Error", "Sucursal no encontrada");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
-        return Optional.empty();
     }
 
-    public boolean deletSucursales(UUID id) {
-        return sucursales.removeIf(sucursales -> sucursales.getId().equals(id));
+    public ResponseEntity<Map<String, Object>> createSucursales(SucursalesEntity sucursales) {
+        Map<String, Object> response = new HashMap<>();
+        sucursales.setId(UUID.randomUUID());
+        if (sucursalesRepository.existsById(sucursales.getId())) {
+            response.put("Estado", "La sucursal ya existe");
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        } else {
+            SucursalesEntity newSucursales = sucursalesRepository.save(sucursales);
+            response.put("Estado", "Sucursal insertada correctamente");
+            response.put("Sucursales", newSucursales);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }
     }
+
+    public ResponseEntity<Map<String, Object>> updateSucursales(UUID id, SucursalesEntity sucursales) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<SucursalesEntity> sucursalesFound = sucursalesRepository.findById(id);
+        if (sucursalesFound.isPresent()) {
+            SucursalesEntity existingSucursales = sucursalesFound.get();
+            existingSucursales.setSucursalesnombre(sucursales.getSucursalesnombre());
+            existingSucursales.setSucursalesciudad(sucursales.getSucursalesciudad());
+            existingSucursales.setSucursalesdireccion(sucursales.getSucursalesdireccion());
+            sucursalesRepository.save(existingSucursales);
+            response.put("Estado", "Sucursal actualizada correctamente");
+            response.put("Sucursal Actualizada", existingSucursales);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.put("Estado", "Sucursal no encontrada");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public ResponseEntity<Map<String, Object>> deleteSucursales(UUID id) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<SucursalesEntity> sucursalesFound = sucursalesRepository.findById(id);
+        if (sucursalesFound.isPresent()) {
+            sucursalesRepository.deleteById(id);
+            response.put("Estado", "Sucursal eliminada correctamente");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.put("Estado", "Sucursal no encontrada");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    
 
 }

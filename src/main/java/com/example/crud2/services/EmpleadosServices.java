@@ -1,21 +1,12 @@
 package com.example.crud2.services;
 
+import java.util.*;
 import com.example.crud2.entities.EmpleadosEntity;
 import com.example.crud2.repositories.EmpleadosRepository;
-import java.util.Map;
-
-
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 @Service
  
 public class EmpleadosServices {

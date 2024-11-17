@@ -1,29 +1,37 @@
 package com.example.crud2.entities;
 
+import java.util.UUID;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.UUID;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
+@Entity
 
 public class ProductosEntity {
+
+    @Id
     private UUID id;
     private String productosnombre;
-    private String categoria;
-    private double precio;
-    private  int cantidad;
+    private String productoscategoria;
+    private double productosprecio;
+    private  int productoscantidad;
 
-    public ProductosEntity(UUID id, String nombre, String categoria, double precio, int cantidad) {
-        this.id = id;
-        this.nombre = nombre;
-        this.categoria = categoria;
-        this.precio = precio;
-        this.cantidad = cantidad;
+    @PrePersist
+	public void generateUUID() {
+		if (id == null) {
+			id = UUID.randomUUID();
+		}
+	}
 
-    }
+
 }

@@ -1,23 +1,12 @@
 package com.example.crud2.controller;
 
 import java.util.Map;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-
+import org.springframework.web.bind.annotation.*;
 import com.example.crud2.services.ClientesServices;
-import com.example.crud2.entities.ClientesEntity;
+import com.example.crud2.entities.ClientesEntity; 
 
 @RestController
 @RequestMapping("/api/v1/clientes")
@@ -50,12 +39,12 @@ public class ClientesController {
 	//Método para actualizar un cliente
 	public ResponseEntity<Map<String, Object>> updateClientes(
 			@PathVariable UUID id, @RequestBody ClientesEntity clientes) {
-		return clientesService.updateClientesy(id, clientes);
+		return clientesService.updateClientes(id, clientes);
 	}
 	
 	@DeleteMapping("/{id}")
 	//Método para eliminar un cliente
-	public ResponseEntity<Map<String, Object>> deletelientes(@PathVariable UUID id){
+	public ResponseEntity<Map<String, Object>> deleteClientes(@PathVariable UUID id){
 		return clientesService.deleteClientes(id);
 	}
 }
